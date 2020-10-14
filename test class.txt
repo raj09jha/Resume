@@ -1,0 +1,117 @@
+package com.crisil.dataprocessing.service;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.crisil.dataprocessing.domain.DimensionMaster;
+import com.crisil.dataprocessing.domain.EntityTemplateDetails;
+import com.crisil.dataprocessing.domain.EntityTemplateMaster;
+import com.crisil.dataprocessing.domain.StandardEntityParameter;
+import com.crisil.dataprocessing.repository.DimensionMasterRepository;
+import com.crisil.dataprocessing.repository.EntityMasterRepository;
+import com.crisil.dataprocessing.repository.EntityTemplateDetailsRepository;
+import com.crisil.dataprocessing.repository.EntityTemplateRepository;
+import com.crisil.dataprocessing.repository.StandardEntityParameterRepository;
+import com.crisil.dataprocessing.service.dto.EntitySourceDto;
+import com.crisil.dataprocessing.service.dto.EntityTemplateDetailsDto;
+import com.crisil.dataprocessing.service.dto.MastersDto;
+
+@SuppressWarnings("deprecation")
+@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class EntityParameterDefinationServiceTest {
+
+	@InjectMocks
+	private EntityTemplateServiceImpl entityTemplateService;
+	
+	@Mock
+	StandardEntityParameterRepository standardEntityParameterRepository;
+	
+	@Mock
+	DimensionMasterRepository dimensionMasterRepository;
+
+ 
+	
+	@Mock
+	EntityTemplateRepository entityTemplateRepo;
+
+	@Mock
+	EntityTemplateDetailsRepository entityTemDetailsRepo;
+	
+	@Mock
+	EntityTemplateMaster entityTemplate;
+	
+	@Mock
+	@Qualifier("oracleLocalContainerEMFB")
+	LocalContainerEntityManagerFactoryBean entityManagerFactory;
+	
+	
+	@Test
+	public void getDimensionMasterNotNull_Test() {
+
+		List<DimensionMaster> dimensionMasters = dimensionMasterRepository.findAllByIsDeleted("N");
+
+		assertNotNull(dimensionMasters);
+	}
+	
+	@Test
+	public void getStandardEntityParametersNotNull_Test() {
+
+		List<StandardEntityParameter> standardEntityParameters = standardEntityParameterRepository.findAllByIsDeletedOrderByOrderId("N");
+
+		assertNotNull(standardEntityParameters);
+	}
+	
+	@Test
+	public void getTemplateDetailsByTemplateNotNull_Test() {
+		
+		EntityTemplateMaster master =  new EntityTemplateMaster();
+		master.setTemplateId(new Long(7));
+		List<EntityTemplateDetails> entityTemplateDetails = entityTemDetailsRepo.findByEntityTemplateAndIsDeletedOrderByOrderId(master,"N");
+		master.setEntityTemplateDetails(entityTemplateDetails);
+		assertNotNull(master);
+	}
+	
+	@Test
+	public void saveEntityTemplateTest() {
+		
+		EntityTemplateMaster  master=new EntityTemplateMaster();
+		master.setTemplateName("D8");
+		EntityTemplateMaster master2= entityTemplateRepo.findByTemplateNameIgnoreCase(master.getTemplateName());
+		
+		assertNotNull(master);
+	}
+	
+	@Test
+	public void getStandardEntityParametersLeftSideNotNull_Test() {
+		EntityTemplateMaster entityTemplate =new EntityTemplateMaster();
+		
+		List<EntityTemplateDetails> templateDetailsList = 	entityTemDetailsRepo.findByEntityTemplateOrderByOrderId(entityTemplate);
+		assertNotNull(templateDetailsList);
+		List<StandardEntityParameter> standardEntityParameters = new ArrayList<StandardEntityParameter>();
+		standardEntityParameters = standardEntityParameterRepository.findAllByOrderByOrderId();
+		assertNotNull(standardEntityParameters);
+	}
+	
+ 
+	
+}
